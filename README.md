@@ -98,11 +98,33 @@ npm run db:reset
 - `tests/`: 기반·필수·선택 심화 테스트
 - `docs/API.md`: 상태·이력·입출력 계약
 
-## 제출 전 작성할 내용
+## 제출 정보 (202117321 안태형)
 
-이 부분을 본인의 서비스 소개, 변경 파일, 구현 완료 여부, 실행 환경, 알려진 문제, 보고서·검증 증거 링크와 AI 사용 요약으로 바꾸세요. GitHub URL·커밋 SHA를 LMS에 제출하고 보고서 PDF를 저장소 `docs/report.pdf`와 LMS에 같은 버전으로 첨부합니다.
+### 서비스 소개
+학생이 캠퍼스 행사에 참가를 신청하고, 행사 담당 운영자가 정원 안에서 승인하는 서비스입니다. 신청, 학생의 대기 취소, 운영자의 직접 승인, 승인 취소와 다음 대기자 자동 승급, 변경 이력 저장을 구현했습니다. 모든 상태 변경은 이력과 함께 하나의 트랜잭션으로 저장되며, 거부되거나 저장 중 오류가 난 요청은 상태와 이력을 바꾸지 않습니다.
 
-`node_modules`, 생성 DB·서명 키, 실제 `.env`·JWT와 개인 정보는 제출하지 않습니다. 제공 코드와 직접 구현한 부분을 구분합니다.
+### 변경 파일
+- `src/application-service.js`: TODO-01~04 구현 (`apply`, `cancel`, `approve`, `revoke`)과 보조 함수 `inTransaction`(BEGIN IMMEDIATE / COMMIT / ROLLBACK), `nextWaiting`(대기자 선택 SQL), `loadForManager`(존재 → 담당자 검사). 추가 코드는 `// [구현 추가]`로 표시했고, 제공 줄은 TODO마다 있던 501 throw 4줄만 삭제했습니다.
+- `docs/evidence/`: 테스트 결과(구현 전 00·01, 구현 후 10·11·12)와 화면 검증 캡처 U01~U05
+- `docs/report.pdf`: 보고서
+- 그 밖의 제공 파일(`src/app.js`, `src/repository.js`, `src/db.js`, `public/`, `tests/`)은 수정하지 않았습니다. 커밋 `a86e414`가 제공 배포본 그대로이고 `454063f`가 구현 커밋입니다.
+
+### 구현 완료 여부
+- `npm test` 4/4, `npm run test:assignment` T01~T32 32/32, `npm run test:advanced` 1/1 통과 (Windows, Node.js v24.21.0)
+- 화면 검증 U01~U05 완료 (`docs/evidence/U01-1.png` ~ `U05-2.png`)
+
+### 실행 환경
+Windows · PowerShell 5.1 (IntelliJ IDEA 터미널) · Node.js v24.21.0. 설치·실행·DB 초기화 방법은 위의 “실행”, “DB 초기화” 절과 같습니다.
+
+### 알려진 문제
+- 동시성 보호는 SQLite 쓰기 잠금(BEGIN IMMEDIATE)과 `busy_timeout=5000`에 의존합니다. 잠금 대기가 5초를 넘으면 500이 되며 재시도 로직은 없습니다. 20회 동시 승인 테스트 통과는 경쟁 조건이 없다는 증명이 아닙니다.
+
+### 보고서·검증 증거
+- 보고서: [docs/report.pdf](docs/report.pdf)
+- 테스트 결과: [docs/evidence/](docs/evidence/)
+
+### AI 사용 요약
+Claude (Anthropic, Claude Opus 5.5)를 사용했습니다. `src/application-service.js`의 구현 코드, 진행 절차 안내, 보고서와 이 README 절의 초안을 AI가 작성했습니다. 본인은 Node 24에서 모든 테스트를 직접 실행해 결과를 확인했고, U01~U05 화면 검증을 직접 수행·캡처했습니다. 자세한 내용은 보고서 7장 “AI 활용과 참고 자료”에 있습니다.
 
 ## 참고 문서
 
